@@ -136,7 +136,7 @@ setup-env: ## Setup environment file
 # Quick start
 quick-start: setup-env dev-build migrate fetch-rates ## Complete setup for new installation
 	@echo ""
-	@echo "🚀 Cryptocurrency Exchange API is ready!"
-	@echo "📊 Dashboard: http://localhost:8080"
-	@echo "🔍 Health check: http://localhost:8080/api/rates/health"
-	@echo "📈 Test endpoint: http://localhost:8080/api/rates/last-24h?pair=EUR/BTC"
+	@echo "Cryptocurrency Exchange API is ready!"
+	@echo "Dashboard: http://localhost:8080"
+	@echo "Health check: http://localhost:8080/api/rates/health"
+	@echo "Test endpoint: http://localhost:8080/api/rates/last-24h?pair=EUR/BTC"

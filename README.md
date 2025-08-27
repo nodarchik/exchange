@@ -386,7 +386,7 @@ curl "http://localhost:8080/api/rates/health"
 curl "http://localhost:8080/api/rates/last-24h?pair=EUR/BTC"
 
 # Test specific day rates
-curl "http://localhost:8080/api/rates/day?pair=EUR/ETH&date=2024-01-15"
+curl "http://localhost:8080/api/rates/day?pair=EUR/ETH&date=2025-08-27"
 
 # Test error handling
 curl "http://localhost:8080/api/rates/last-24h?pair=INVALID"
@@ -451,7 +451,7 @@ docker compose -f compose.prod.yaml exec app php bin/console doctrine:migrations
 curl https://your-domain.com/api/rates/health
 ```
 
-## 🔍 Troubleshooting
+## Troubleshooting
 
 ### Common Issues and Solutions
 
@@ -517,7 +517,7 @@ docker compose exec database tail -f /var/log/mysql/slow.log
 docker compose exec app free -h
 ```
 
-## 📞 Development & Contributing
+## Development & Contributing
 
 ### Local Development Setup
 ```bash
