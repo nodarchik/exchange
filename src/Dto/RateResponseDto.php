@@ -48,6 +48,40 @@ final readonly class RateResponseDto
     }
 
     /**
+     * Create response DTO from array (for cached data)
+     * 
+     * @param array<string, mixed> $data
+     */
+    public static function fromArray(array $data): self
+    {
+        $rates = array_map(
+            fn(array $rateData) => new RateItemDto(
+                price: $rateData['price'],
+                recordedAt: new \DateTimeImmutable($rateData['recorded_at']),
+                id: $rateData['id'] ?? 0
+            ),
+            $data['rates'] ?? []
+        );
+
+        $statistics = new RateStatisticsDto(
+            minPrice: (float) str_replace(',', '', $data['statistics']['min_price']),
+            maxPrice: (float) str_replace(',', '', $data['statistics']['max_price']),
+            avgPrice: (float) str_replace(',', '', $data['statistics']['avg_price']),
+            totalRecords: $data['statistics']['total_records'],
+            priceChange: (float) str_replace(',', '', $data['statistics']['price_change']),
+            priceChangePercent: (float) $data['statistics']['price_change_percent']
+        );
+
+        return new self(
+            pair: $data['pair'],
+            rates: $rates,
+            statistics: $statistics,
+            requestedPeriod: $data['requested_period'],
+            generatedAt: new \DateTimeImmutable($data['generated_at'])
+        );
+    }
+
+    /**
      * Convert to array for JSON serialization
      * 
      * @return array<string, mixed>

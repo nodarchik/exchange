@@ -1,0 +1,108 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Service;
+
+use App\Dto\RateQueryDto;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+
+/**
+ * Service for handling validation logic
+ * Centralizes validation concerns and error formatting
+ */
+class ValidationService
+{
+    public function __construct(
+        private readonly ValidatorInterface $validator,
+        private readonly LoggerInterface $logger
+    ) {}
+
+    /**
+     * Validate rate query DTO and return standardized errors
+     */
+    public function validateRateQuery(RateQueryDto $queryDto): ValidationResult
+    {
+        $violations = $this->validator->validate($queryDto);
+        
+        if (count($violations) === 0) {
+            return ValidationResult::valid();
+        }
+
+        $errors = $this->formatViolations($violations);
+        
+        $this->logger->warning('API validation failed', ['errors' => $errors]);
+        
+        return ValidationResult::invalid($errors, 'The request parameters are invalid');
+    }
+
+    /**
+     * Validate date requirement for daily endpoints
+     */
+    public function validateDateRequirement(RateQueryDto $queryDto): ValidationResult
+    {
+        if ($queryDto->date === null) {
+            $error = ['date' => 'This field is required'];
+            
+            $this->logger->warning('Date parameter missing for daily endpoint');
+            
+            return ValidationResult::invalid($error, 'Date parameter is required for daily rates');
+        }
+
+        return ValidationResult::valid();
+    }
+
+    /**
+     * Validate if pair is supported
+     */
+    public function validateSupportedPair(string $pair): ValidationResult
+    {
+        $supportedPairs = ['EUR/BTC', 'EUR/ETH', 'EUR/LTC'];
+        
+        if (!in_array($pair, $supportedPairs, true)) {
+            $error = ['pair' => sprintf('Unsupported pair. Supported pairs are: %s', implode(', ', $supportedPairs))];
+            
+            $this->logger->warning('Unsupported pair requested', ['pair' => $pair]);
+            
+            return ValidationResult::invalid($error, 'Unsupported trading pair');
+        }
+
+        return ValidationResult::valid();
+    }
+
+    /**
+     * Format constraint violations to array
+     */
+    private function formatViolations(ConstraintViolationListInterface $violations): array
+    {
+        $errors = [];
+        foreach ($violations as $violation) {
+            $errors[$violation->getPropertyPath()] = $violation->getMessage();
+        }
+        return $errors;
+    }
+}
+
+/**
+ * Value object representing validation result
+ */
+readonly class ValidationResult
+{
+    public function __construct(
+        public bool $isValid,
+        public array $errors = [],
+        public string $message = ''
+    ) {}
+
+    public static function valid(): self
+    {
+        return new self(true);
+    }
+
+    public static function invalid(array $errors, string $message = ''): self
+    {
+        return new self(false, $errors, $message);
+    }
+}

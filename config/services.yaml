@@ -32,6 +32,18 @@ services:
         arguments:
             $logger: '@monolog.logger.app.binance'
             
+    App\Service\RateService:
+        arguments:
+            $logger: '@monolog.logger.app.api'
+            
+    App\Service\ValidationService:
+        arguments:
+            $logger: '@monolog.logger.app.api'
+            
+    App\Service\HealthCheckService:
+        arguments:
+            $logger: '@monolog.logger.app.api'
+            
     App\Command\FetchRatesCommand:
         arguments:
             $logger: '@monolog.logger.app.scheduler'
