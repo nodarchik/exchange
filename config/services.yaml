@@ -23,28 +23,15 @@ services:
         tags:
             - { name: kernel.event_listener, event: kernel.exception }
 
-    # Logger channels for different components
-    monolog.logger.api:
-        parent: monolog.logger
-        channels: ['app.api']
-        
-    monolog.logger.binance:
-        parent: monolog.logger  
-        channels: ['app.binance']
-        
-    monolog.logger.scheduler:
-        parent: monolog.logger
-        channels: ['app.scheduler']
-
-    # Configure loggers for services
+    # Configure loggers for services with channels
     App\Controller\RateController:
         arguments:
-            $logger: '@monolog.logger.api'
+            $logger: '@monolog.logger.app.api'
             
     App\Service\BinanceApiService:
         arguments:
-            $logger: '@monolog.logger.binance'
+            $logger: '@monolog.logger.app.binance'
             
     App\Command\FetchRatesCommand:
         arguments:
-            $logger: '@monolog.logger.scheduler'
+            $logger: '@monolog.logger.app.scheduler'

@@ -106,7 +106,7 @@ class FetchRatesCommand extends Command
                 foreach ($errors as $error) {
                     $io->writeln("  • {$error}");
                 }
-                return Command::PARTIAL;
+                return Command::FAILURE;
             }
 
             if ($successCount === 0) {

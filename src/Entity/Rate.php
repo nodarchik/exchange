@@ -17,7 +17,7 @@ class Rate
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: Types::INTEGER)]
+    #[ORM\Column]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::STRING, length: 10)]

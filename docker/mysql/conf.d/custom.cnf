@@ -2,18 +2,13 @@
 # Performance optimizations for cryptocurrency data
 default-storage-engine = InnoDB
 innodb_buffer_pool_size = 256M
-innodb_log_file_size = 64M
+innodb_redo_log_capacity = 134217728
 innodb_flush_log_at_trx_commit = 2
 innodb_file_per_table = 1
 
 # Character set for cryptocurrency symbols
 character-set-server = utf8mb4
 collation-server = utf8mb4_unicode_ci
-
-# Query cache (useful for rate queries)
-query_cache_type = 1
-query_cache_size = 64M
-query_cache_limit = 2M
 
 # Connection settings
 max_connections = 200
@@ -29,7 +24,7 @@ long_query_time = 2
 # Binary logging for replication (production)
 log-bin = mysql-bin
 binlog_format = ROW
-expire_logs_days = 7
+binlog_expire_logs_seconds = 604800
 
 [client]
 default-character-set = utf8mb4
