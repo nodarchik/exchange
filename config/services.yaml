@@ -16,5 +16,35 @@ services:
     App\:
         resource: '../src/'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    # Exception listener for API error handling
+    App\EventListener\ExceptionListener:
+        arguments:
+            $environment: '%kernel.environment%'
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception }
+
+    # Logger channels for different components
+    monolog.logger.api:
+        parent: monolog.logger
+        channels: ['app.api']
+        
+    monolog.logger.binance:
+        parent: monolog.logger  
+        channels: ['app.binance']
+        
+    monolog.logger.scheduler:
+        parent: monolog.logger
+        channels: ['app.scheduler']
+
+    # Configure loggers for services
+    App\Controller\RateController:
+        arguments:
+            $logger: '@monolog.logger.api'
+            
+    App\Service\BinanceApiService:
+        arguments:
+            $logger: '@monolog.logger.binance'
+            
+    App\Command\FetchRatesCommand:
+        arguments:
+            $logger: '@monolog.logger.scheduler'
