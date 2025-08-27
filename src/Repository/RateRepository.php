@@ -46,7 +46,7 @@ class RateRepository extends ServiceEntityRepository
 
     /**
      * Find rates for the last 24 hours for a specific pair
-     * Optimized with proper indexing and ordering
+     * Optimized with proper indexing, ordering and result caching
      * 
      * @return Rate[]
      */
@@ -55,18 +55,21 @@ class RateRepository extends ServiceEntityRepository
         $yesterday = new \DateTimeImmutable('-24 hours');
 
         return $this->createQueryBuilder('r')
+            ->select('r')
             ->andWhere('r.pair = :pair')
             ->andWhere('r.recordedAt >= :yesterday')
             ->setParameter('pair', $pair)
             ->setParameter('yesterday', $yesterday)
             ->orderBy('r.recordedAt', 'ASC')
             ->getQuery()
+            ->useQueryCache(true)
+            ->useResultCache(true, 300) // Cache for 5 minutes
             ->getResult();
     }
 
     /**
      * Find rates for a specific day and pair
-     * Optimized for daily queries with proper date boundaries
+     * Optimized for daily queries with proper date boundaries and caching
      * 
      * @return Rate[]
      */
@@ -74,8 +77,12 @@ class RateRepository extends ServiceEntityRepository
     {
         $startOfDay = $date->setTime(0, 0, 0);
         $endOfDay = $date->setTime(23, 59, 59);
+        
+        // Cache daily results for longer (historical data doesn't change)
+        $cacheTime = $date < new \DateTimeImmutable('today') ? 3600 : 300; // 1 hour for past days, 5 min for today
 
         return $this->createQueryBuilder('r')
+            ->select('r')
             ->andWhere('r.pair = :pair')
             ->andWhere('r.recordedAt >= :startOfDay')
             ->andWhere('r.recordedAt <= :endOfDay')
@@ -84,6 +91,8 @@ class RateRepository extends ServiceEntityRepository
             ->setParameter('endOfDay', $endOfDay)
             ->orderBy('r.recordedAt', 'ASC')
             ->getQuery()
+            ->useQueryCache(true)
+            ->useResultCache(true, $cacheTime)
             ->getResult();
     }
 

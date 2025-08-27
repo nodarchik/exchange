@@ -1,30 +1,57 @@
 [mysqld]
 # Performance optimizations for cryptocurrency data
 default-storage-engine = InnoDB
-innodb_buffer_pool_size = 256M
-innodb_redo_log_capacity = 134217728
+
+# InnoDB Performance Tuning
+innodb_buffer_pool_size = 512M
+innodb_redo_log_capacity = 268435456
 innodb_flush_log_at_trx_commit = 2
 innodb_file_per_table = 1
+innodb_flush_method = O_DIRECT
+innodb_io_capacity = 200
+innodb_io_capacity_max = 400
+innodb_read_io_threads = 4
+innodb_write_io_threads = 4
+innodb_thread_concurrency = 0
+innodb_lock_wait_timeout = 50
 
 # Character set for cryptocurrency symbols
 character-set-server = utf8mb4
 collation-server = utf8mb4_unicode_ci
 
-# Connection settings
-max_connections = 200
+# Connection and performance settings
+max_connections = 500
+max_connect_errors = 100000
 connect_timeout = 10
 wait_timeout = 600
 interactive_timeout = 600
+thread_cache_size = 50
+table_open_cache = 4000
+table_definition_cache = 2000
 
-# Logging (adjust for production)
+# Query optimization
+tmp_table_size = 128M
+max_heap_table_size = 128M
+join_buffer_size = 2M
+sort_buffer_size = 2M
+read_buffer_size = 2M
+read_rnd_buffer_size = 8M
+
+# Logging (optimized for production)
 slow_query_log = 1
 slow_query_log_file = /var/log/mysql/slow.log
-long_query_time = 2
+long_query_time = 1
+log_queries_not_using_indexes = 1
 
 # Binary logging for replication (production)
 log-bin = mysql-bin
 binlog_format = ROW
 binlog_expire_logs_seconds = 604800
+sync_binlog = 0
+
+# Performance schema
+performance_schema = ON
+performance_schema_max_table_instances = 500
 
 [client]
 default-character-set = utf8mb4

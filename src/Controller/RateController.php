@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Dto\RateQueryDto;
 use App\Dto\RateResponseDto;
 use App\Repository\RateRepository;
+use App\Service\RateCacheService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -25,6 +26,7 @@ class RateController extends AbstractController
 {
     public function __construct(
         private readonly RateRepository $rateRepository,
+        private readonly RateCacheService $cacheService,
         private readonly ValidatorInterface $validator,
         private readonly LoggerInterface $logger
     ) {}
@@ -50,10 +52,19 @@ class RateController extends AbstractController
                 return $this->createValidationErrorResponse($violations);
             }
 
-            // Fetch rates from repository
-            $rates = $this->rateRepository->findLast24Hours($queryDto->pair);
+            // Use caching for performance
+            $response = $this->cacheService->getLast24hRates($queryDto->pair, function() use ($queryDto) {
+                $rates = $this->rateRepository->findLast24Hours($queryDto->pair);
 
-            if (empty($rates)) {
+                if (empty($rates)) {
+                    return null; // Will be handled after cache call
+                }
+
+                $responseDto = RateResponseDto::fromRates($rates, 'last-24h');
+                return $responseDto->toArray();
+            });
+
+            if ($response === null) {
                 $this->logger->warning('No rates found for last 24h', ['pair' => $queryDto->pair]);
                 
                 return $this->json([
@@ -64,15 +75,13 @@ class RateController extends AbstractController
                 ], Response::HTTP_NOT_FOUND);
             }
 
-            // Create response DTO
-            $responseDto = RateResponseDto::fromRates($rates, 'last-24h');
-
             $this->logger->info('Successfully returned last 24h rates', [
                 'pair' => $queryDto->pair,
-                'rate_count' => count($rates)
+                'rate_count' => $response['count'] ?? 0,
+                'cached' => true
             ]);
 
-            return $this->json($responseDto->toArray());
+            return $this->json($response);
 
         } catch (\Throwable $e) {
             $this->logger->error('Error fetching last 24h rates', [

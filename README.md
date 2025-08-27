@@ -2,7 +2,7 @@
 
 A professional Symfony 7.3 application that provides real-time cryptocurrency exchange rates (EUR to BTC, ETH, LTC) with automatic data fetching from Binance API.
 
-## 🚀 Features
+## Features
 
 - **Real-time Data**: Fetches EUR/BTC, EUR/ETH, EUR/LTC rates from Binance API every 5 minutes
 - **RESTful API**: Clean endpoints for last 24h and specific day rate queries
@@ -11,13 +11,13 @@ A professional Symfony 7.3 application that provides real-time cryptocurrency ex
 - **Performance Optimized**: Database indexing, caching, efficient queries
 - **Secure**: Input validation, rate limiting, security headers
 
-## 📋 Requirements
+## Requirements
 
 - Docker & Docker Compose
 - Git
 - Make (optional, for convenience commands)
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 ├── src/
@@ -56,7 +56,7 @@ A professional Symfony 7.3 application that provides real-time cryptocurrency ex
 └── Makefile            # Development commands
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Option 1: One-Command Setup
 
@@ -109,7 +109,7 @@ docker compose exec app php bin/console app:fetch-rates
 docker compose logs -f
 ```
 
-## 🌐 API Endpoints
+## API Endpoints
 
 **Base URL**: `http://localhost:8080`
 
@@ -187,7 +187,7 @@ GET /api/rates/health
 - `EUR/ETH` - Euro to Ethereum  
 - `EUR/LTC` - Euro to Litecoin
 
-## 🐳 Docker Operations
+## Docker Operations
 
 ### Development Commands
 ```bash
@@ -236,7 +236,7 @@ make clean        # Clean up Docker resources
 make clean-all    # Clean everything including images
 ```
 
-## ⚙️ Application Startup Process
+## Application Startup Process
 
 ### Development Startup
 1. **Docker Compose** reads `compose.yaml` and `compose.override.yaml`
@@ -256,7 +256,7 @@ make clean-all    # Clean everything including images
 5. **Scheduler Container** runs cron jobs separately
 6. **Health checks** ensure all services are operational
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 
@@ -288,7 +288,7 @@ For production deployment, configure these additional variables:
 
 ```bash
 # Security
-APP_SECRET=your-strong-secret-key-here
+APP_SECRET=strong-secret-key-here
 
 # Database
 MYSQL_ROOT_PASSWORD=secure-root-password
@@ -300,7 +300,7 @@ DOMAIN_NAME=your-domain.com
 ACME_EMAIL=admin@your-domain.com
 ```
 
-## 📊 How the Application Works
+## How the Application Works
 
 ### 1. Data Collection (Every 5 Minutes)
 ```
@@ -375,7 +375,7 @@ Exception → ExceptionListener → Structured JSON Response
 - **Exception tracking** for debugging
 - **Health checks** for service monitoring
 
-## 🧪 Testing the Application
+## Testing the Application
 
 ### Manual API Testing
 ```bash
@@ -413,7 +413,7 @@ docker compose exec app tail -f var/log/binance.log
 docker compose exec app tail -f var/log/scheduler.log
 ```
 
-## 🚀 Production Deployment
+## Production Deployment
 
 ### Using Make Commands
 ```bash
@@ -565,13 +565,3 @@ git push origin feature/your-feature
 2. Add route annotation
 3. Create/update DTOs for validation
 4. Add tests and documentation
-
-## 📄 License
-
-This project is proprietary software. All rights reserved.
-
----
-
-**🎯 Ready for Production | 🔒 Secure by Design | 📈 Performance Optimized**
-
-Built with ❤️ using Symfony 7.3, Docker, and modern PHP practices.
