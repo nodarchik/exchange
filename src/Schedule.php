@@ -21,8 +21,8 @@ class Schedule implements ScheduleProviderInterface
             ->stateful($this->cache) // ensure missed tasks are executed
             ->processOnlyLastMissedRun(true) // ensure only last missed task is run
 
-            // add your own tasks here
-            // see https://symfony.com/doc/current/scheduler.html#attaching-recurring-messages-to-a-schedule
+            // Fetch cryptocurrency rates every 5 minutes
+            ->command('app:fetch-rates')->every('5 minutes')->description('Fetch cryptocurrency rates from Binance API')
         ;
     }
 }
