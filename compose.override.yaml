@@ -18,3 +18,19 @@ services:
   redis:
     ports:
       - "6379:6379"
+      
+  # Development scheduler service
+  scheduler:
+    build:
+      context: .
+      target: dev
+    volumes:
+      - .:/var/www/html
+      - app_var:/var/www/html/var
+    environment:
+      DATABASE_URL: mysql://app:app_password@database:3306/crypto_exchange?serverVersion=8.0
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+    command: bash -c "cd /var/www/html && bash scripts/start-scheduler.sh"

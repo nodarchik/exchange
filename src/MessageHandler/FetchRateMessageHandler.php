@@ -33,9 +33,9 @@ class FetchRateMessageHandler
         $startTime = microtime(true);
         
         $this->logger->info('Processing async rate fetch message', [
-            'pairs' => $message->pairs,
+            'pairs' => $message->getPairs(),
             'invalidate_cache' => $message->invalidateCache,
-            'requested_at' => $message->requestedAt->format('Y-m-d H:i:s')
+            'requested_at' => $message->getRequestedAt()->format('Y-m-d H:i:s')
         ]);
 
         try {
@@ -45,7 +45,7 @@ class FetchRateMessageHandler
             $recordedAt = new \DateTimeImmutable();
             $successCount = 0;
             
-            foreach ($message->pairs as $pair) {
+            foreach ($message->getPairs() as $pair) {
                 if (!isset($prices[$pair])) {
                     $this->logger->warning('Price not available for pair', ['pair' => $pair]);
                     continue;
@@ -86,14 +86,14 @@ class FetchRateMessageHandler
             
             $this->logger->info('Async rate fetch completed', [
                 'success_count' => $successCount,
-                'total_pairs' => count($message->pairs),
+                'total_pairs' => count($message->getPairs()),
                 'duration_ms' => round($duration, 2),
                 'recorded_at' => $recordedAt->format('Y-m-d H:i:s')
             ]);
 
         } catch (\Throwable $e) {
             $this->logger->error('Async rate fetch failed', [
-                'pairs' => $message->pairs,
+                'pairs' => $message->getPairs(),
                 'error' => $e->getMessage(),
                 'exception' => get_class($e)
             ]);
