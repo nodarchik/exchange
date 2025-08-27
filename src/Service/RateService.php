@@ -118,7 +118,7 @@ class RateService
     public function getLatestRatesHealth(): array
     {
         try {
-            return $this->cacheService->getLatestRates(function() {
+            $result = $this->cacheService->getLatestRates(function() {
                 $latestRates = [];
                 $pairs = CryptoPairs::getAllSupported();
 
@@ -131,6 +131,8 @@ class RateService
 
                 return $latestRates;
             });
+
+            return $result ?? [];
 
         } catch (\Throwable $e) {
             $this->logger->error('Error fetching latest rates for health check', [

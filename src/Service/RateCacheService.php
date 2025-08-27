@@ -34,7 +34,7 @@ class RateCacheService
         string $cacheKey,
         callable $dataProvider,
         int $ttl = self::CACHE_TTL_24H
-    ): array {
+    ): ?array {
         try {
             return $this->cache->get($cacheKey, function (ItemInterface $item) use ($dataProvider, $ttl) {
                 $item->expiresAfter($ttl);
@@ -65,7 +65,7 @@ class RateCacheService
     /**
      * Cache last 24h rates with smart TTL based on data freshness
      */
-    public function getLast24hRates(string $pair, callable $dataProvider): array
+    public function getLast24hRates(string $pair, callable $dataProvider): ?array
     {
         $cacheKey = CacheConfig::getRates24hKey($pair);
         return $this->getCachedApiResponse($cacheKey, $dataProvider, self::CACHE_TTL_24H);
@@ -74,7 +74,7 @@ class RateCacheService
     /**
      * Cache daily rates with longer TTL for historical data
      */
-    public function getDailyRates(string $pair, string $date, callable $dataProvider): array
+    public function getDailyRates(string $pair, string $date, callable $dataProvider): ?array
     {
         $cacheKey = CacheConfig::getRatesDayKey($pair, $date);
         
@@ -88,7 +88,7 @@ class RateCacheService
     /**
      * Cache latest rate data for health checks
      */
-    public function getLatestRates(callable $dataProvider): array
+    public function getLatestRates(callable $dataProvider): ?array
     {
         $cacheKey = CacheConfig::getLatestRatesKey();
         return $this->getCachedApiResponse($cacheKey, $dataProvider, self::CACHE_TTL_STATS);
@@ -97,7 +97,7 @@ class RateCacheService
     /**
      * Cache rate statistics
      */
-    public function getRateStatistics(string $cacheKey, callable $dataProvider): array
+    public function getRateStatistics(string $cacheKey, callable $dataProvider): ?array
     {
         return $this->getCachedApiResponse($cacheKey, $dataProvider, self::CACHE_TTL_STATS);
     }
