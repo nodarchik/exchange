@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Constants\ApiConstants;
+use App\Constants\CryptoPairs;
+use App\Constants\TimeConstants;
 use App\Dto\RateResponseDto;
 use App\Repository\RateRepository;
 use Psr\Log\LoggerInterface;
@@ -35,7 +38,7 @@ class RateService
                     return null;
                 }
 
-                $responseDto = RateResponseDto::fromRates($rates, 'last-24h');
+                $responseDto = RateResponseDto::fromRates($rates, ApiConstants::RESPONSE_TYPE_24H);
                 return $responseDto->toArray();
             });
 
@@ -78,7 +81,7 @@ class RateService
                     return null;
                 }
 
-                $responseDto = RateResponseDto::fromRates($rates, "day:{$dateString}");
+                $responseDto = RateResponseDto::fromRates($rates, ApiConstants::getDayResponseType($dateString));
                 return $responseDto->toArray();
             });
 
@@ -117,12 +120,12 @@ class RateService
         try {
             return $this->cacheService->getLatestRates(function() {
                 $latestRates = [];
-                $pairs = ['EUR/BTC', 'EUR/ETH', 'EUR/LTC'];
+                $pairs = CryptoPairs::getAllSupported();
 
                 foreach ($pairs as $pair) {
                     $rate = $this->rateRepository->findLatestByPair($pair);
                     if ($rate) {
-                        $latestRates[$pair] = $rate->getRecordedAt()->format('Y-m-d H:i:s');
+                        $latestRates[$pair] = $rate->getRecordedAt()->format(TimeConstants::FORMAT_DATETIME);
                     }
                 }
 
@@ -161,8 +164,8 @@ class RateService
                 'max_price' => $statistics['max_price'],
                 'avg_price' => $statistics['avg_price'],
                 'total_records' => $statistics['total_records'],
-                'period_start' => $startDate->format(\DateTimeInterface::ATOM),
-                'period_end' => $endDate->format(\DateTimeInterface::ATOM)
+                'period_start' => $startDate->format(TimeConstants::FORMAT_ISO8601),
+                'period_end' => $endDate->format(TimeConstants::FORMAT_ISO8601)
             ];
 
         } catch (\Throwable $e) {
@@ -186,7 +189,7 @@ class RateService
                 return false;
             }
 
-            $tenMinutesAgo = new \DateTimeImmutable('-10 minutes');
+            $tenMinutesAgo = TimeConstants::getDataFreshnessThreshold();
             return $latestRate->getRecordedAt() > $tenMinutesAgo;
 
         } catch (\Throwable $e) {
@@ -203,7 +206,7 @@ class RateService
      */
     public function getSupportedPairs(): array
     {
-        return ['EUR/BTC', 'EUR/ETH', 'EUR/LTC'];
+        return CryptoPairs::getAllSupported();
     }
 
     /**
@@ -211,6 +214,6 @@ class RateService
      */
     public function isPairSupported(string $pair): bool
     {
-        return in_array($pair, $this->getSupportedPairs(), true);
+        return CryptoPairs::isSupported($pair);
     }
 }

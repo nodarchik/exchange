@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Constants\CacheConfig;
+use App\Constants\CryptoPairs;
 use App\Dto\RateResponseDto;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -15,9 +17,10 @@ use Symfony\Contracts\Cache\ItemInterface;
  */
 class RateCacheService
 {
-    private const CACHE_TTL_24H = 300; // 5 minutes for recent data
-    private const CACHE_TTL_HISTORICAL = 3600; // 1 hour for historical data
-    private const CACHE_TTL_STATS = 60; // 1 minute for statistics
+    // Use constants from CacheConfig
+    private const CACHE_TTL_24H = CacheConfig::TTL_RECENT_DATA;
+    private const CACHE_TTL_HISTORICAL = CacheConfig::TTL_HISTORICAL_DATA;
+    private const CACHE_TTL_STATS = CacheConfig::TTL_HEALTH_CHECK;
 
     public function __construct(
         private readonly CacheInterface $cache,
@@ -64,7 +67,7 @@ class RateCacheService
      */
     public function getLast24hRates(string $pair, callable $dataProvider): array
     {
-        $cacheKey = "rates_24h_" . str_replace('/', '_', $pair);
+        $cacheKey = CacheConfig::getRates24hKey($pair);
         return $this->getCachedApiResponse($cacheKey, $dataProvider, self::CACHE_TTL_24H);
     }
 
@@ -73,7 +76,7 @@ class RateCacheService
      */
     public function getDailyRates(string $pair, string $date, callable $dataProvider): array
     {
-        $cacheKey = "rates_day_" . str_replace('/', '_', $pair) . "_{$date}";
+        $cacheKey = CacheConfig::getRatesDayKey($pair, $date);
         
         // Use longer cache for historical data (past dates)
         $isHistorical = $date < date('Y-m-d');
@@ -87,7 +90,7 @@ class RateCacheService
      */
     public function getLatestRates(callable $dataProvider): array
     {
-        $cacheKey = 'latest_rates_health';
+        $cacheKey = CacheConfig::getLatestRatesKey();
         return $this->getCachedApiResponse($cacheKey, $dataProvider, self::CACHE_TTL_STATS);
     }
 
@@ -106,9 +109,9 @@ class RateCacheService
     {
         try {
             $keysToInvalidate = [
-                "rates_24h_" . str_replace('/', '_', $pair),
-                "rates_day_" . str_replace('/', '_', $pair) . "_" . date('Y-m-d'),
-                'latest_rates_health'
+                CacheConfig::getRates24hKey($pair),
+                CacheConfig::getRatesDayKey($pair, date('Y-m-d')),
+                CacheConfig::getLatestRatesKey()
             ];
 
             foreach ($keysToInvalidate as $key) {
@@ -130,8 +133,9 @@ class RateCacheService
     /**
      * Warm up cache with frequently accessed data
      */
-    public function warmUpCache(array $pairs = ['EUR/BTC', 'EUR/ETH', 'EUR/LTC']): void
+    public function warmUpCache(array $pairs = null): void
     {
+        $pairs = $pairs ?? CryptoPairs::getAllSupported();
         $this->logger->info('Starting cache warm-up', ['pairs' => $pairs]);
         
         foreach ($pairs as $pair) {

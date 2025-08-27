@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Constants\TimeConstants;
 use App\Entity\Rate;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -52,7 +53,7 @@ class RateRepository extends ServiceEntityRepository
      */
     public function findLast24Hours(string $pair): array
     {
-        $yesterday = new \DateTimeImmutable('-24 hours');
+        $yesterday = TimeConstants::get24HoursAgo();
 
         return $this->createQueryBuilder('r')
             ->select('r')
@@ -73,8 +74,8 @@ class RateRepository extends ServiceEntityRepository
      */
     public function findByDay(string $pair, \DateTimeImmutable $date): array
     {
-        $startOfDay = $date->setTime(0, 0, 0);
-        $endOfDay = $date->setTime(23, 59, 59);
+        $startOfDay = TimeConstants::getStartOfDay($date);
+        $endOfDay = TimeConstants::getEndOfDay($date);
         
         // Cache daily results for longer (historical data doesn't change)
         $cacheTime = $date < new \DateTimeImmutable('today') ? 3600 : 300; // 1 hour for past days, 5 min for today

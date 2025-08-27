@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Constants\CryptoPairs;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -22,7 +23,7 @@ class Rate
 
     #[ORM\Column(type: Types::STRING, length: 10)]
     #[Assert\NotBlank]
-    #[Assert\Choice(choices: ['EUR/BTC', 'EUR/ETH', 'EUR/LTC'])]
+    #[Assert\Choice(choices: CryptoPairs::ALL_SUPPORTED)]
     private string $pair;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 20, scale: 8)]
@@ -112,7 +113,7 @@ class Rate
      */
     public function getBaseCurrency(): string
     {
-        return explode('/', $this->pair)[0];
+        return CryptoPairs::getBaseCurrency($this->pair);
     }
 
     /**
@@ -120,7 +121,7 @@ class Rate
      */
     public function getQuoteCurrency(): string
     {
-        return explode('/', $this->pair)[1];
+        return CryptoPairs::getQuoteCurrency($this->pair);
     }
 
     /**

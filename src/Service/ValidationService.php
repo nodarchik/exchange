@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Constants\ApiConstants;
+use App\Constants\CryptoPairs;
 use App\Dto\RateQueryDto;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
@@ -35,7 +37,7 @@ class ValidationService
         
         $this->logger->warning('API validation failed', ['errors' => $errors]);
         
-        return ValidationResult::invalid($errors, 'The request parameters are invalid');
+        return ValidationResult::invalid($errors, ApiConstants::MESSAGE_INVALID_PARAMETERS);
     }
 
     /**
@@ -44,11 +46,11 @@ class ValidationService
     public function validateDateRequirement(RateQueryDto $queryDto): ValidationResult
     {
         if ($queryDto->date === null) {
-            $error = ['date' => 'This field is required'];
+            $error = ['date' => ApiConstants::VALIDATION_REQUIRED_FIELD];
             
             $this->logger->warning('Date parameter missing for daily endpoint');
             
-            return ValidationResult::invalid($error, 'Date parameter is required for daily rates');
+            return ValidationResult::invalid($error, ApiConstants::MESSAGE_DATE_REQUIRED);
         }
 
         return ValidationResult::valid();
@@ -59,10 +61,8 @@ class ValidationService
      */
     public function validateSupportedPair(string $pair): ValidationResult
     {
-        $supportedPairs = ['EUR/BTC', 'EUR/ETH', 'EUR/LTC'];
-        
-        if (!in_array($pair, $supportedPairs, true)) {
-            $error = ['pair' => sprintf('Unsupported pair. Supported pairs are: %s', implode(', ', $supportedPairs))];
+        if (!CryptoPairs::isSupported($pair)) {
+            $error = ['pair' => ApiConstants::getUnsupportedPairMessage()];
             
             $this->logger->warning('Unsupported pair requested', ['pair' => $pair]);
             

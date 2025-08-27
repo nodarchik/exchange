@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Dto;
 
+use App\Constants\CryptoPairs;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -15,7 +16,7 @@ final readonly class RateQueryDto
     public function __construct(
         #[Assert\NotBlank(message: 'Pair is required')]
         #[Assert\Choice(
-            choices: ['EUR/BTC', 'EUR/ETH', 'EUR/LTC'],
+            choices: CryptoPairs::ALL_SUPPORTED,
             message: 'Invalid pair. Supported pairs are: EUR/BTC, EUR/ETH, EUR/LTC'
         )]
         public string $pair,

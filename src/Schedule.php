@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Constants\TimeConstants;
 use Symfony\Component\Scheduler\Attribute\AsSchedule;
 use Symfony\Component\Scheduler\Schedule as SymfonySchedule;
 use Symfony\Component\Scheduler\ScheduleProviderInterface;
@@ -22,7 +23,7 @@ class Schedule implements ScheduleProviderInterface
             ->processOnlyLastMissedRun(true) // ensure only last missed task is run
 
             // Fetch cryptocurrency rates every 5 minutes
-            ->command('app:fetch-rates')->every('5 minutes')->description('Fetch cryptocurrency rates from Binance API')
+            ->command('app:fetch-rates')->every(TimeConstants::SCHEDULE_EVERY_5_MINUTES)->description('Fetch cryptocurrency rates from Binance API')
         ;
     }
 }

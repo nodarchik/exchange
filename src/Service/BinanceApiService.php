@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Constants\CryptoPairs;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -25,13 +26,9 @@ class BinanceApiService
     private const RETRY_DELAY = 1000; // milliseconds
 
     /**
-     * Mapping from our internal pair format to Binance symbols
+     * Use mapping from constants
      */
-    private const PAIR_MAPPING = [
-        'EUR/BTC' => 'BTCEUR',
-        'EUR/ETH' => 'ETHEUR', 
-        'EUR/LTC' => 'LTCEUR',
-    ];
+    private const PAIR_MAPPING = CryptoPairs::BINANCE_SYMBOLS;
 
     public function __construct(
         private readonly HttpClientInterface $httpClient,

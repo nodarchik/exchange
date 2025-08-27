@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Constants\ApiConstants;
 use App\Dto\RateQueryDto;
 use App\Service\HealthCheckService;
 use App\Service\RateService;
@@ -49,7 +50,7 @@ class RateController extends AbstractController
         $validationResult = $this->validationService->validateRateQuery($queryDto);
         if (!$validationResult->isValid) {
             return $this->createErrorResponse(
-                'Validation failed',
+                ApiConstants::ERROR_VALIDATION_FAILED,
                 $validationResult->message,
                 $validationResult->errors,
                 Response::HTTP_BAD_REQUEST
@@ -60,7 +61,7 @@ class RateController extends AbstractController
         $pairValidation = $this->validationService->validateSupportedPair($queryDto->pair);
         if (!$pairValidation->isValid) {
             return $this->createErrorResponse(
-                'Invalid pair',
+                ApiConstants::ERROR_INVALID_PAIR,
                 $pairValidation->message,
                 $pairValidation->errors,
                 Response::HTTP_BAD_REQUEST
@@ -72,9 +73,9 @@ class RateController extends AbstractController
 
             if ($responseDto === null) {
                 return $this->createErrorResponse(
-                    'No data available',
-                    "No rates found for {$queryDto->pair} in the last 24 hours",
-                    ['pair' => $queryDto->pair, 'requested_period' => 'last-24h'],
+                                    ApiConstants::ERROR_NO_DATA_AVAILABLE,
+                ApiConstants::getNoRates24hMessage($queryDto->pair),
+                    ['pair' => $queryDto->pair, 'requested_period' => ApiConstants::RESPONSE_TYPE_24H],
                     Response::HTTP_NOT_FOUND
                 );
             }
@@ -83,8 +84,8 @@ class RateController extends AbstractController
 
         } catch (RateServiceException $e) {
             return $this->createErrorResponse(
-                'Service error',
-                'An error occurred while fetching rate data',
+                ApiConstants::ERROR_SERVICE_ERROR,
+                ApiConstants::MESSAGE_SERVICE_ERROR,
                 [],
                 Response::HTTP_INTERNAL_SERVER_ERROR
             );
@@ -110,7 +111,7 @@ class RateController extends AbstractController
         $validationResult = $this->validationService->validateRateQuery($queryDto);
         if (!$validationResult->isValid) {
             return $this->createErrorResponse(
-                'Validation failed',
+                ApiConstants::ERROR_VALIDATION_FAILED,
                 $validationResult->message,
                 $validationResult->errors,
                 Response::HTTP_BAD_REQUEST
@@ -121,7 +122,7 @@ class RateController extends AbstractController
         $dateValidation = $this->validationService->validateDateRequirement($queryDto);
         if (!$dateValidation->isValid) {
             return $this->createErrorResponse(
-                'Validation failed',
+                ApiConstants::ERROR_VALIDATION_FAILED,
                 $dateValidation->message,
                 $dateValidation->errors,
                 Response::HTTP_BAD_REQUEST
@@ -132,7 +133,7 @@ class RateController extends AbstractController
         $pairValidation = $this->validationService->validateSupportedPair($queryDto->pair);
         if (!$pairValidation->isValid) {
             return $this->createErrorResponse(
-                'Invalid pair',
+                ApiConstants::ERROR_INVALID_PAIR,
                 $pairValidation->message,
                 $pairValidation->errors,
                 Response::HTTP_BAD_REQUEST
@@ -145,12 +146,12 @@ class RateController extends AbstractController
 
             if ($responseDto === null) {
                 return $this->createErrorResponse(
-                    'No data available',
-                    "No rates found for {$queryDto->pair} on {$queryDto->date}",
+                                    ApiConstants::ERROR_NO_DATA_AVAILABLE,
+                ApiConstants::getNoRatesDayMessage($queryDto->pair, $queryDto->date),
                     [
                         'pair' => $queryDto->pair,
                         'requested_date' => $queryDto->date,
-                        'requested_period' => 'day'
+                        'requested_period' => ApiConstants::RESPONSE_TYPE_DAY
                     ],
                     Response::HTTP_NOT_FOUND
                 );
@@ -160,7 +161,7 @@ class RateController extends AbstractController
 
         } catch (\InvalidArgumentException $e) {
             return $this->createErrorResponse(
-                'Invalid date format',
+                ApiConstants::ERROR_INVALID_DATE_FORMAT,
                 $e->getMessage(),
                 [],
                 Response::HTTP_BAD_REQUEST
@@ -168,8 +169,8 @@ class RateController extends AbstractController
 
         } catch (RateServiceException $e) {
             return $this->createErrorResponse(
-                'Service error',
-                'An error occurred while fetching rate data',
+                ApiConstants::ERROR_SERVICE_ERROR,
+                ApiConstants::MESSAGE_SERVICE_ERROR,
                 [],
                 Response::HTTP_INTERNAL_SERVER_ERROR
             );
