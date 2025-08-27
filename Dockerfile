@@ -44,7 +44,7 @@ FROM base AS dev
 RUN composer install --no-scripts --no-autoloader
 
 # Install Xdebug for development
-RUN apk add --no-cache $PHPIZE_DEPS \
+RUN apk add --no-cache $PHPIZE_DEPS linux-headers \
     && pecl install xdebug \
     && docker-php-ext-enable xdebug
 
