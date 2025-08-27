@@ -64,7 +64,7 @@ class RateCacheService
      */
     public function getLast24hRates(string $pair, callable $dataProvider): array
     {
-        $cacheKey = "rates_24h_{$pair}";
+        $cacheKey = "rates_24h_" . str_replace('/', '_', $pair);
         return $this->getCachedApiResponse($cacheKey, $dataProvider, self::CACHE_TTL_24H);
     }
 
@@ -73,7 +73,7 @@ class RateCacheService
      */
     public function getDailyRates(string $pair, string $date, callable $dataProvider): array
     {
-        $cacheKey = "rates_day_{$pair}_{$date}";
+        $cacheKey = "rates_day_" . str_replace('/', '_', $pair) . "_{$date}";
         
         // Use longer cache for historical data (past dates)
         $isHistorical = $date < date('Y-m-d');
@@ -106,8 +106,8 @@ class RateCacheService
     {
         try {
             $keysToInvalidate = [
-                "rates_24h_{$pair}",
-                "rates_day_{$pair}_" . date('Y-m-d'),
+                "rates_24h_" . str_replace('/', '_', $pair),
+                "rates_day_" . str_replace('/', '_', $pair) . "_" . date('Y-m-d'),
                 'latest_rates_health'
             ];
 

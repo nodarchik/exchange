@@ -62,8 +62,6 @@ class RateRepository extends ServiceEntityRepository
             ->setParameter('yesterday', $yesterday)
             ->orderBy('r.recordedAt', 'ASC')
             ->getQuery()
-            ->useQueryCache(true)
-            ->useResultCache(true, 300) // Cache for 5 minutes
             ->getResult();
     }
 
@@ -91,8 +89,6 @@ class RateRepository extends ServiceEntityRepository
             ->setParameter('endOfDay', $endOfDay)
             ->orderBy('r.recordedAt', 'ASC')
             ->getQuery()
-            ->useQueryCache(true)
-            ->useResultCache(true, $cacheTime)
             ->getResult();
     }
 
