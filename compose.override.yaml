@@ -1,7 +1,20 @@
 
 services:
-###> doctrine/doctrine-bundle ###
+  # Development overrides
   database:
     ports:
-      - "5432"
-###< doctrine/doctrine-bundle ###
+      - "3306:3306"
+      
+  app:
+    ports:
+      - "9000:9000"
+    environment:
+      XDEBUG_MODE: debug
+      
+  nginx:
+    ports:
+      - "8080:80"
+      
+  redis:
+    ports:
+      - "6379:6379"

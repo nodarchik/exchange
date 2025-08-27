@@ -1,0 +1,41 @@
+# Development files
+.git
+.gitignore
+README.md
+Dockerfile*
+docker-compose*
+compose*.yaml
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Dependencies (will be installed in container)
+vendor/
+node_modules/
+
+# Runtime files  
+var/cache/*
+var/log/*
+var/sessions/*
+!var/cache/.gitkeep
+!var/log/.gitkeep
+!var/sessions/.gitkeep
+
+# Test files
+tests/
+phpunit.xml*
+.phpunit.result.cache
+
+# Environment files
+.env.local
+.env.*.local
+
+# Documentation
+docs/
